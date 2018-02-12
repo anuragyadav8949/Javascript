@@ -57,9 +57,10 @@
 														</tr>
 													</tfoot>
                         </table>            
-            #END TBALE
-#Sum of table cells using JS
-for(var i=0;i<debt_table.length;i++)
+														    #END TBALE
+						<script>
+									#Sum of table cells using JS
+													for(var i=0;i<debt_table.length;i++)
 													{
 														total = isNaN(debt_table[i].innerHTML) ? 0 : parseFloat(debt_table[i].innerHTML);
 														console.log(debt_table[i].innerHTML + " Debit " + total);
@@ -76,3 +77,40 @@ for(var i=0;i<debt_table.length;i++)
 													}
 													document.getElementById("credit_total").innerHTML = credit_total;//CREDIT total
 													document.getElementById("closing_total").innerHTML = credit_total;//CLOSING BAL
+						#Adding Values from diffrent coolumns#
+		//Insert into Balance
+					var ac_balance = ac_table.rows[i].cells[8];
+					alert(i);
+					if(i != 1)
+					{
+							alert('ac_bal !=1');
+							if(debit_amt.innerText != 0)
+							{
+							  ac_balance.innerText += Number(debit_amt.innerText) + Number(ac_table.rows[i-1].cells[8].innerText);
+								alert(Number(ac_table.rows[i-1].cells[8].innerText));
+							  alert("Debited "+ Number(ac_balance.innerText));
+							}
+							else{
+							  ac_balance.innerText -= Number(credit_amt.innerText) - Number(ac_table.rows[i-1].cells[8].innerText);
+							  alert("Credited "+ac_balance.innerText);
+							}
+						  //ac_balance.innerText += ac_table.rows[i-1].cells[8].innerText;
+							alert("Amount "+ ac_balance.innerText);
+					}
+					else
+					{
+							alert('ac_bal=1');
+							if(debit_amt.innerText != 0)
+							{
+							  ac_balance.innerText += debit_amt.innerText;
+							  alert("Debited "+ ac_balance.innerText)
+							}else{
+							  ac_balance.innerText -= credit_amt.innerText;
+							  alert("Credited "+ac_balance.innerText);
+							}
+							alert("Amount else "+ac_balance.innerText);
+					}
+
+					alert("Final A/c Bal "+ ac_balance.innerHTML);
+	}
+				</script>
