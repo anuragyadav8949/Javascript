@@ -1,0 +1,78 @@
+            #TABLE
+<table id="account_table"class="table table-striped table-bordered table-advance table-hover">
+														<!-- Bill Amount -->
+
+                          <thead>
+                            <tr>
+                              <th class="sorting_desc" aria-label="Sr. No.: activate to sort coulmn ascending" tabindex="0" aria-sort="descending" width="4%">Sr. No. </th>
+                              <th> <i class="fa fa-calendar"></i> Date </th>
+                              <th> Description </th>
+                              <th> Bill/Receipt No.</th>
+                              <th>Type</th>
+                              <th>Debit</th>
+                              <th>Credit</th>
+                              <th>Balance</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+															<?php foreach($account_data as $rows) { ?>
+
+                            <tr id="table_row">
+															<td id="bill_amt" hidden><?php echo round($rows->amount,0); ?></td>
+                              <td> <?php echo $rows->id ?>  </td>
+                              <td> <?php echo date('d-m-Y',strtotime($rows->payment_date)) ?> </td>
+                              <td> <?php echo $rows->charges_name ?></td>
+                              <td><a href="#"><?php echo $rows->bill_no ?></a></td>
+                              <td id="payment_type"><?php echo ($rows->payment_type== 1	)?'Bill':'Payment'?></td>
+															<td class="debt_countable"></td>
+															<td class="cred_countable"></td>
+                              <td>xxx</td>
+                              <td>Pending</td>
+                            </tr>
+															<?php } ?>
+                          </tbody>
+													<tfoot>
+														<tr>
+															<td></td>
+															<td></td>
+															<td>Closing Balance</td>
+															<td></td>
+															<td></td>
+															<td></td>
+															<td id="closing_total"></td>
+															<td></td>
+															<td></td>
+														</tr>
+														<tr>
+															<td></td>
+															<td></td>
+															<td><b>Total</b></td>
+															<td></td>
+															<td></td>
+															<td id="debt_total"> </td>
+															<td id="credit_total"></td>
+															<td></td>
+															<td></td>
+														</tr>
+													</tfoot>
+                        </table>            
+            #END TBALE
+#Sum of table cells using JS
+for(var i=0;i<debt_table.length;i++)
+													{
+														total = isNaN(debt_table[i].innerHTML) ? 0 : parseFloat(debt_table[i].innerHTML);
+														console.log(debt_table[i].innerHTML + " Debit " + total);
+														var debt_total = document.getElementById("debt_total").innerHTML = total;//DEBTIT total
+													}
+
+
+
+													var credit_total = 0;
+
+													for(var i=0;i<cred_table.length;i++){
+													credit_total += isNaN(cred_table[i].innerHTML) ? 0 : parseInt(cred_table[i].innerHTML);
+													console.log(cred_table[i].innerHTML + " Credit" + credit_total);
+													}
+													document.getElementById("credit_total").innerHTML = credit_total;//CREDIT total
+													document.getElementById("closing_total").innerHTML = credit_total;//CLOSING BAL
