@@ -107,28 +107,31 @@
     /*End Require image when document is selected or vice versa on submit*/
 
     <!-- /*Approval Form fields Mandate*/ -->
-    function isApproved()
-    {
-        console.log('In isApproved function');
-        if($(".isApproved option:selected").text()=="Approved")
+        function isApproved()
         {
-
-            console.log('values is approved');
-                /*CheckBox Reuired*/
-            $('[name="btnsub"]').hover(function() {
-                checked = $("input[type=checkbox]:checked").length;
-                  if(!checked) {
-                    alert("You must check at least one checkbox.");
-                    //return false;
-                  }
-            });
-
-        }else {
-            if($(".isApproved option:selected").text()=="Rejected"){
-                console.log('Approval is rejected');
-                return $('[name ="approval_reason"]').prop('required',true);
-            }
+            //console.log('In isApproved function');
+            if($(".isApproved option:selected").text()=="Approved")
+            {
+                console.log('values is approved');
+                    /*CheckBox Reuired*/
+                
+                    $("#ceochairman").prop('checked',true);
+                    $('[name ="approval_reason"]').prop('required',false);
+                    checked = $("input[type=checkbox]:checked").length;
+                      if(!checked) {
+                        alert("You must check at least one checkbox.");
+                        return false ;
+                      }
+                
+            }else  if($(".isApproved option:selected").text()=="Rejected"){
+                
+                    console.log('Approval is rejected');
+                    $("#ceochairman").prop('checked',false);
+                     $('[name ="approval_reason"]').prop('required',true);
+                     return true;
+                }else {
+                    $(".isApproved").prop('required',true);
+                    return false;
+                }
         }
-
-    }
     /* End Approval Form fields Mandate */
