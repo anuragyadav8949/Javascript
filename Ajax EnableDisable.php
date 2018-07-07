@@ -195,3 +195,10 @@ $is_super = $this->session->userdata('is_super');
 
 	
 </script>
+
+/**Another Method to toggle checkbox**/
+
+$('#custom7').on('change', function(){
+   this.value = this.checked ? 1 : 0;
+    alert(this.value);
+}).change();
