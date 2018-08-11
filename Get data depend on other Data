@@ -1,0 +1,266 @@
+<style type="text/css">
+  .tab {
+  display: none;
+}
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+<section class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Add Vendor payout</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body my-form-body">
+          <?php if(isset($msg) || validation_errors() !== ''): ?>
+              <div class="alert alert-warning alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                  <h4><i class="icon fa fa-warning"></i> Alert!</h4>
+                  <?= validation_errors();?>
+                  <?= isset($msg)? $msg: ''; ?>
+              </div>
+            <?php endif; ?>
+              <?php $form_config =array('enctype'=>"multipart/form-data",
+                                        'id'=>"genPayout",'class'=>"form-horizontal");?>
+            <?php echo form_open(base_url('admin/payouts/generatePayout'), $form_config);  ?> 
+              
+
+              <div class="form-group">
+                <label for="vendor_id" class="col-sm-2 control-label">Select Vendors</label>
+                <div class="col-sm-9">
+                  <?php $sql = "SELECT f.* from f_vendor as f INNER JOIN payout_vendors as pv  
+                                ON f.id = pv.v_id";
+                        $query = $this->db->query($sql);
+                        if ($query->num_rows()>0) {
+                         $cat = $query->result();
+                        }
+                  ?>
+                  <select class="form-control select2" name="vendor_id" id="vendor_id" data-placeholder="Choose Vendor" style="width: 100%;">
+                    <option value="">Select Vendor</option>
+                    <?php foreach($cat as $row){?>
+                        <option value="<?php echo $row->id ?>"><?php echo $row->firstname.' '.$row->lastname?></option>
+                    <?php }?>
+                  </select>
+                </div>
+              </div> 
+
+              <div class="form-group">
+                <label for="percentage" class="col-sm-2 control-label">Deducted percentage</label>
+
+                <div class="col-sm-9">
+                  <input type="text" name="percentage" class="form-control" id="percentage" 
+                  value="" disabled="">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="prod_cat" class="col-sm-2 control-label">Select Dates</label>
+                <div class="col-sm-9">
+                  <div class="input-group">
+                    <div class="input-group-addon">
+                      <i class="fa fa-calendar"></i>
+                    </div>
+                    <input type="text" class="form-control pull-right" id="reservation">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="order_data" class="col-sm-2 control-label">Orders</label>
+                <div class="col-sm-9" id="order_data">
+                </div>
+                <div class="col-sm-9" id="order_transactions">
+                  <label>Online Amt</label>
+                  <input type="text" name="online_price" class="form-control" id="online_price" 
+                  value="" disabled="">
+
+                  <label>COD Amt</label>
+                  <input type="text" name="cod_price" class="form-control" id="cod_price" 
+                  value="" disabled="">
+
+                  <label>Total Amt</label>
+                  <input type="text" name="total_price" class="form-control" id="total_price" 
+                   disabled="">
+
+                  <label>Earned Amount</label>
+                  <input type="text" name="earned_price" class="form-control" id="earned_price" 
+                  value="" disabled="">
+
+                  <label>Amount to be Paid</label>
+                  <input type="text" name="paid_amt" class="form-control" id="paid_amt" 
+                  value="" disabled="">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-md-11">
+                  <input type="button" name="submit" value="Generate Payout" id="generatePayout" class="btn btn-info pull-right">
+                </div>
+              </div>
+            <?php echo form_close( ); ?>
+          <!-- /.box-body -->
+      </div>
+    </div>
+  </div>  
+
+</section> 
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+$("#add_payout").addClass('active');
+</script>    
+<!-- Page script -->
+<script>
+    $(function () {
+      //Initialize Select2 Elements
+      $(".select2").select2();
+      $(".timepicker").timepicker({
+      showInputs: false
+    });
+
+    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+      checkboxClass: 'icheckbox_minimal-blue',
+      radioClass: 'iradio_minimal-blue'
+    });
+    //Date range picker
+    $('#reservation').daterangepicker();
+});
+</script>
+<!-------Generate Payouts------>
+<script>
+  $(document).ready(function(){
+
+    //Get % of vendor
+    $("#vendor_id").change(function(){
+      var vendor_id = (this).value;
+      $("#order_data").load(" #order_data");//reload the order data
+      $.ajax({
+        type:"POST",
+        url:"<?php echo base_url();?>admin/Payouts/getPercentage",
+        data:{vendor_id:vendor_id},
+        success:function(response){
+          //alert(response);
+          result =$.parseJSON(response);
+          p_value = result.percentage;
+          document.getElementById("percentage").value = p_value;
+        },
+        error:function(e)
+        {
+          console.log(e);
+        }
+      }); 
+    });
+
+        //Get Orders by date
+    $("#reservation").change(function(){
+      var dates = document.getElementById("reservation").value;
+      var cut_percentage = document.getElementById("percentage").value;
+      var v_id = document.getElementById("vendor_id").value;
+      //console.log(cut_percentage);
+      $.ajax({
+        type:"POST",
+        url:"<?php echo base_url();?>admin/Payouts/getOrdersByDate",
+        data:{dates:dates,v_id:v_id},
+        success:function(response){
+          console.log(response);
+          
+
+            var result =JSON.parse(response);
+            if(result.length < 1 )
+            {
+            alert("No Order Found between these Date Or It may Generated");
+            window.location.href="<?php base_url()?>payoutHistory";
+            }
+            var container = document.getElementById("order_data");
+            console.log(result);
+            var total_earning = [];
+            var online_earning = [];
+            var cod_earning = [];
+            var orders_total =0; //Total amt of order
+            var online_total =0; 
+            var cod_total = 0;
+            $.each(result,function(index,data){
+                   var prod_name = document.createElement("p");
+                   prod_name.innerHTML = "Order id " + data.order_id + " Order Price " + data.total_price;
+                   container.appendChild(prod_name);
+                   if(data.payment_method_id = 1)
+                      online_earning.push(data.total_price);
+                   else
+                      cod_earning.push(data.total_price);
+      
+                      total_earning.push(data.total_price);
+               });
+
+            //Add total Earning
+            for(var j=0;j<total_earning.length;j++)
+            {
+              orders_total += Number(total_earning[j]);
+            } 
+            //Add Online Earning
+            for(var j=0;j<online_earning.length;j++)
+            {
+              online_total += Number(online_earning[j]);
+            }
+
+            //Add COD Earning
+            for(var j=0;j<cod_earning.length;j++)
+            {
+              cod_total += Number(cod_earning[j]);
+            }
+
+            document.getElementById("online_price").value = online_total;
+            document.getElementById("cod_price").value = cod_total;
+            document.getElementById("total_price").value = orders_total;
+            // console.log(orders_total);
+
+            //apply % on that order
+            get_amt = cut_percentage/100 * orders_total;
+            document.getElementById("earned_price").value = get_amt;
+
+            //Amount Paid to Vendor
+            paid_amt = orders_total - get_amt;
+            document.getElementById("paid_amt").value = paid_amt;
+          
+        },
+        error:function(e)
+        {
+          console.log(e);
+        }
+      }); 
+    });
+
+
+        //Generate Payout
+    $('#generatePayout').click(function(){
+        var online_total = document.getElementById("online_price").value;
+        var cod_total =document.getElementById("cod_price").value ;
+        var orders_total= document.getElementById("total_price").value ;
+        var get_amt = document.getElementById("earned_price").value ;
+        var paid_amt=  document.getElementById("paid_amt").value ;
+        var dates = document.getElementById("reservation").value;
+        var v_id = document.getElementById("vendor_id").value;
+        var percentage = document.getElementById("percentage").value
+
+        alert(dates);
+        $.ajax({
+            type:"POST",
+            url:"<?php echo base_url();?>admin/Payouts/addPayout",
+            data:{online_total:online_total,cod_total:cod_total,orders_total:orders_total,get_amt:get_amt,
+              paid_amt:paid_amt,dates:dates,v_id:v_id,percentage:percentage},
+            success:function(response){
+              alert("Payout Generated succesfully");
+            },
+            error:function(e){
+              alert("Some Error Occured "+e.error);
+            }
+        });
+    });
+        
+  });
+</script>
