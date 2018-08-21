@@ -1,0 +1,170 @@
+<style type="text/css">
+  .tab {
+  display: none;
+}
+</style>
+<section class="content">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="box">
+        <div class="box-header with-border">
+          <h3 class="box-title">Edit Orders</h3>
+        </div>
+        <!-- /.box-header -->
+        <!-- form start -->
+        <div class="box-body my-form-body">
+          <?php if(isset($msg) || validation_errors() !== ''): ?>
+              <div class="alert alert-warning alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                  <h4><i class="icon fa fa-warning"></i> Alert!</h4>
+                  <?= validation_errors();?>
+                  <?= isset($msg)? $msg: ''; ?>
+              </div>
+            <?php endif; ?>
+              <?php $form_config =array('enctype'=>"multipart/form-data",
+                                        'id'=>"orderForm",'class'=>"form-horizontal");?>
+            <?php echo form_open(base_url('admin/orders/edit/'.$order['order_id']), $form_config);  ?> 
+            
+              <div class="form-group">
+                <label for="area" class="col-sm-2 control-label">Choose Area</label>
+                <div class="col-sm-9">
+                  <?php $sql = "SELECT * from location_master ";
+                        $query = $this->db->query($sql);
+                        if ($query->num_rows()>0) {
+                         $area = $query->result();
+                        }
+                        // echo "<pre>";print_r($area);exit;
+                  ?>
+                  <select class="form-control select2" name="area" id="area" style="width: 100%;">
+                    <?php foreach($area as $row){?>
+                        <option <?php if($row->id==$order['oprtng_location_id']){echo 'selected';}?>
+                        value="<?php echo $row->id ?>"><?php echo $row->location ?></option>
+                    <?php }?>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="vendor" class="col-sm-2 control-label">Assigned Vendor</label>
+                <div class="col-sm-9">
+                  <select class="form-control select2" name="vendor" id="vendor" style="width: 100%;">
+                      
+                  </select>
+                </div>
+              </div> 
+
+              <div class="form-group">
+                <label for="delivery_person" class="col-sm-2 control-label">Assigned Delivery </label>
+                <div class="col-sm-9">
+                  <select class="form-control select2" name="delivery_person" id="delivery_person" style="width: 100%;">
+                      
+                  </select>
+                </div>
+              </div> 
+
+              <div class="form-group">
+                <label for="order_ref" class="col-sm-2 control-label">Order Ref</label>
+
+                <div class="col-sm-9">
+                  <input type="text" name="order_ref" class="form-control" id="order_ref" 
+                  value="<?php echo $order['order_ref_no']?>"  readonly>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="total_price" class="col-sm-2 control-label"> Order Price</label>
+                <div class="col-sm-9">
+                  <input type="text" name="total_price" class="form-control" id="total_price" 
+                  value="<?php echo $order['total_price']?>" readonly>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="delivery_address" class="col-sm-2 control-label"> Delivery Address</label>
+                <div class="col-sm-9">
+                  <input type="text" name="delivery_address" class="form-control" id="delivery_address" 
+                  value="<?php echo $order['delivery_address']?>" readonly>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-md-11">
+                  <input type="submit" name="submit" value="Update Product" class="btn btn-info pull-right">
+                </div>
+              </div>
+            <?php echo form_close( ); ?>
+          <!-- /.box-body -->
+      </div>
+    </div>
+  </div>  
+
+</section> 
+
+<script>
+$("#view_products").addClass('active');
+</script>    
+<!-- Page script -->
+<script>
+    $(function () {
+      //Initialize Select2 Elements
+      $(".select2").select2();
+      $(".timepicker").timepicker({
+      showInputs: false
+    });
+
+    $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+      checkboxClass: 'icheckbox_minimal-blue',
+      radioClass: 'iradio_minimal-blue'
+    });
+});
+</script>
+<script>
+  
+  $(document).ready(function(){
+        //Get Vendor From Area
+        $("#area").change(function(){
+        var location_id = (this).value;
+        $.ajax({
+          type:"POST",
+          url:"<?php echo base_url();?>admin/Orders/getVendor",
+          data:{location_id:location_id},
+          success:function(response){
+                // console.log(response);
+                result =$.parseJSON(response);
+                $('#vendor').empty();
+                $.each(result,function(key,value){
+                    $('#vendor').
+                    append('<option value="'+ value.id +'">'+ value.firstname +'</option>');
+                }); 
+          },
+          error:function(e)
+          {
+            console.log(e);
+          }
+        }); 
+
+        //Get Delivery Boy
+        $.ajax({
+          type:"POST",
+          url:"<?php echo base_url();?>admin/Orders/getDelivery",
+          data:{location_id:location_id},
+          success:function(response){
+                // console.log(response);
+                result =$.parseJSON(response);
+                $('#delivery_person').empty();
+                $.each(result,function(key,value){
+                    $('#delivery_person').
+                    append('<option value="'+ value.id +'">'+ value.firstname +'</option>');
+                }); 
+          },
+          error:function(e)
+          {
+            console.log(e);
+          }
+        }); 
+      });
+  });
+    
+
+    //Get Delivery from Area
+</script>
+
