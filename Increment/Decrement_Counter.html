@@ -1,0 +1,63 @@
+<div class="form-group">
+                  <label for="products" class="col-sm-2 control-label">Available Quantity<span style="color: red">*</span></label>
+                  <div class="col-sm-9">
+                    <input type='button' value='-' class='qtyminus' field='prod_quantity' />
+                    <input type="text" class='qty' id="prod_quantity" name="prod_quantity" value='0' >
+                    <input type='button' value='+' class='qtyplus' field='prod_quantity' />
+                  </div>
+              </div>
+<script>
+ $(document).ready(function(){
+
+    // This button will increment the value of Product quantity
+    $('.qtyplus').click(function(e){
+        // Stop acting like a button
+        var prod_weight = $("input[name *='product_weight']:checkbox:checked").map(function(){
+          return $(this).val();
+        }).get();
+        if(prod_weight == '' || prod_weight == 'undefined' ){
+          e.preventDefault();
+          // Get the field name
+          fieldName = $(this).attr('field');
+
+          // Get its current value
+          var currentVal = parseInt($('input[name='+fieldName+']').val());
+          // If is not undefined
+          if (!isNaN(currentVal)) {
+              // Increment
+              $('input[name='+fieldName+']').val(currentVal + 1);
+          } else {
+              // Otherwise put a 0 there
+              $('input[name='+fieldName+']').val(0);
+          }
+        }else{
+          swal({
+            title: "Can't Update Quantity",
+            text: "Weight is Already Selected",
+            icon: "warning",
+            button: "Ok",
+          });
+        }
+    });
+    // This button will decrement the value till 0
+    $(".qtyminus").click(function(e) {
+        var prod_weight = $("input[name *='product_weight']:checkbox:checked").map(function(){
+          return $(this).val();
+        }).get();
+        // Stop acting like a button
+        e.preventDefault();
+        // Get the field name
+        fieldName = $(this).attr('field');
+        // Get its current value
+        var currentVal = parseInt($('input[name='+fieldName+']').val());
+        // If it isn't undefined or its greater than 0
+        if (!isNaN(currentVal) && currentVal > 0) {
+            // Decrement one
+            $('input[name='+fieldName+']').val(currentVal - 1);
+        } else {
+            // Otherwise put a 0 there
+            $('input[name='+fieldName+']').val(0);
+        }
+    });
+});
+</script>  
